@@ -159,7 +159,17 @@ void sdCPP::Text2Img(
   sd_params params;
   // parse request to sd_params
   auto jsonReq = req->getJsonObject();
-  parse_options_generation(json::parse(jsonReq->toStyledString()), params);
+  auto inputObject = (*jsonReq)["input"];
+  if (inputObject.empty()) {
+    // return error
+    Json::Value jsonResp;
+    jsonResp["message"] = "Input is empty";
+    auto resp = nitro_utils::nitroHttpJsonResponse(jsonResp);
+    resp->setStatusCode(drogon::k400BadRequest);
+    callback(resp);
+    return;
+  }
+  parse_options_generation(json::parse(inputObject.toStyledString()), params);
 
   sd_image_t* images = txt2img(sd,
                             params.prompt.c_str(),
