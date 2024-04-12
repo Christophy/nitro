@@ -8,3 +8,4 @@
 [submodule "stable-diffusion.cpp"]
 	path = stable-diffusion.cpp
 	url = https://github.com/Christophy/stable-diffusion.cpp.git
+	branch = master

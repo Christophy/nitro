@@ -177,7 +177,7 @@ void sdCPP::Text2Img(
     base64_images.append(base64_png);
   }
   Json::Value jsonResp;
-  jsonResp["images"] = base64_images;
+  jsonResp["output"] = base64_images;
   auto resp = nitro_utils::nitroHttpJsonResponse(jsonResp);
   callback(resp);
 }
