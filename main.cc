@@ -1,8 +1,10 @@
-#include "utils/nitro_utils.h"
-#include <climits> // for PATH_MAX
 #include <drogon/HttpAppFramework.h>
 #include <drogon/drogon.h>
+#include <climits>  // for PATH_MAX
 #include <iostream>
+#include "utils/nitro_utils.h"
+
+#include "stable-diffusion.h"
 
 #if defined(__APPLE__) && defined(__MACH__)
 #include <libgen.h> // for dirname()
@@ -16,6 +18,27 @@
 #else
 #error "Unsupported platform!"
 #endif
+
+void sd_log_cb(sd_log_level_t level, const char* log_buffer, void* sd_log_cb_data) {
+  // redirect the log messages
+  switch (level) {
+      case SD_LOG_DEBUG:
+      LOG_DEBUG << log_buffer;
+      break;
+      case SD_LOG_INFO:
+      LOG_INFO << log_buffer;
+      break;
+      case SD_LOG_WARN:
+      LOG_WARN << log_buffer;
+      break;
+      case SD_LOG_ERROR:
+      LOG_ERROR << log_buffer;
+      break;
+      default:
+      LOG_ERROR << "Unknown log level: " << level;
+      break;
+  }
+}
 
 int main(int argc, char *argv[]) {
   int thread_num = 1;
@@ -42,7 +65,7 @@ int main(int argc, char *argv[]) {
   if (argc > 4) {
     uploads_folder_path = argv[4];
   }
-
+  sd_set_log_callback(sd_log_cb, nullptr);
   int logical_cores = std::thread::hardware_concurrency();
   int drogon_thread_num = std::max(thread_num, logical_cores);
   nitro_utils::nitro_logo();
@@ -65,3 +88,6 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
+
+
+

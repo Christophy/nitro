@@ -122,6 +122,8 @@ static void parse_options_model(const json &body, sd_params& params) {
   params.lora_model_dir = json_value(body, "lora_model_dir", default_params.lora_model_dir);
   params.n_threads = json_value(body, "n_threads", default_params.n_threads);
   params.rng_type = json_value(body, "rng_type", default_params.rng_type);
+  // tae is default required, add it in the docker image
+  params.taesd_path = json_value(body, "taesd_path", default_params.taesd_path);
   // make wtype as empty
   params.wtype = GGML_TYPE_COUNT;
 }
@@ -194,13 +196,15 @@ void sdCPP::Text2Img(
     return;
   }
   parse_options_generation(json::parse(inputObject.toStyledString()), params);
-
+  LOG_INFO << "txt2img start";
   sd_image_t* images = txt2img(sd,
                             params.prompt.c_str(),
                             params.negative_prompt.c_str(), 0,
                             params.cfg_scale, params.width, params.height,
                             params.sample_method, params.sample_steps, params.seed,
                             params.batch_count, NULL, 0.0f, 0.0f, 0.0f, "");
+
+  LOG_INFO << "txt2img end";
   Json::Value base64_images;
   for(int i = 0; i < params.batch_count; i ++) {
     int len;
@@ -210,6 +214,7 @@ void sdCPP::Text2Img(
     std::string base64_png = "data:image/png;base64," + base64_encode(png, len);
     base64_images.append(base64_png);
   }
+  LOG_INFO << "base64_images ends";
   Json::Value jsonResp;
   jsonResp["output"] = base64_images;
   auto resp = nitro_utils::nitroHttpJsonResponse(jsonResp);
