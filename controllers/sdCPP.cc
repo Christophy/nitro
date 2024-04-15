@@ -18,7 +18,7 @@ struct sd_params {
 
   std::string model_path;
   std::string vae_path;
-  std::string taesd_path;
+  std::string taesd_path = "/app/nitro/build/taesd.safetensors";
   std::string esrgan_path;
   ggml_type wtype = GGML_TYPE_COUNT;
   std::string lora_model_dir;
