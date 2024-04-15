@@ -249,7 +249,7 @@ void sdCPP::LoadModel(
         params.model_path.c_str(),
         params.vae_path.c_str(),
         params.taesd_path.c_str(),
-        "", "", (sd_type_t)params.wtype, true, params.schedule, false);
+        "", "", (sd_type_t)params.wtype, false, params.schedule, false);
     set_model_loaded();
     LOG_INFO << "sd model loaded successfully";
   }
