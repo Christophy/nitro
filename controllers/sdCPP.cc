@@ -39,7 +39,7 @@ struct sd_params {
   int sample_steps           = 4;
   float strength             = 0.75f;
   rng_type_t rng_type        = CUDA_RNG;
-  int64_t seed               = 42;
+  int64_t seed;
   bool verbose               = false;
   bool vae_tiling            = false;
 };
@@ -95,7 +95,9 @@ static void parse_options_generation(const json &body, sd_params& params)
   sd_params default_params;
   params.prompt = json_value(body, "prompt", default_params.prompt);
   params.negative_prompt = json_value(body, "negative_prompt", default_params.negative_prompt);
-  params.seed = json_value(body, "seed", default_params.seed);
+  // seed should be random if not passed
+  int64_t randoSeed = std::chrono::system_clock::now().time_since_epoch().count();
+  params.seed = json_value(body, "seed", randoSeed);
   params.sample_steps = json_value(body, "steps", default_params.sample_steps);
   // Parse sample_method as a string
   std::string sample_method_str = json_value<std::string>(body, "sampler", "euler_a");
