@@ -35,7 +35,8 @@ struct sd_params {
 
   sample_method_t sample_method = EULER_A;
   schedule_t schedule          = DEFAULT;
-  int sample_steps           = 1;
+  // make defualt steps to 4, to apply at least for sd-lightning
+  int sample_steps           = 4;
   float strength             = 0.75f;
   rng_type_t rng_type        = CUDA_RNG;
   int64_t seed               = 42;
@@ -77,6 +78,18 @@ const char* sample_method_str[] = {
   "lcm",
 };
 
+// Define a map to convert strings to sample_method_t enum values
+std::map<std::string, sample_method_t> sample_method_map = {
+  {"euler_a", EULER_A},
+  {"euler", EULER},
+  {"heun", HEUN},
+  {"dpm2", DPM2},
+  {"dpm++2s_a", DPMPP2S_A},
+  {"dpm++2m", DPMPP2M},
+  {"dpm++2mv2", DPMPP2Mv2},
+  {"lcm", LCM}
+};
+
 static void parse_options_generation(const json &body, sd_params& params)
 {
   sd_params default_params;
@@ -84,6 +97,17 @@ static void parse_options_generation(const json &body, sd_params& params)
   params.negative_prompt = json_value(body, "negative_prompt", default_params.negative_prompt);
   params.seed = json_value(body, "seed", default_params.seed);
   params.sample_steps = json_value(body, "steps", default_params.sample_steps);
+  // Parse sample_method as a string
+  std::string sample_method_str = json_value<std::string>(body, "sampler", "euler_a");
+  // Convert the string to the corresponding enum value using the map
+  if (sample_method_map.count(sample_method_str) > 0) {
+    params.sample_method = sample_method_map[sample_method_str];
+  } else {
+    // Handle the case where the string does not match any enum value
+    // Here we default to EULER_A, but you can handle this differently if you want
+    params.sample_method = default_params.sample_method;
+  }
+
   params.sample_method = json_value(body, "sampler", default_params.sample_method);
   params.batch_count = json_value(body, "batch_count", default_params.batch_count);
   params.width = json_value(body, "width", default_params.width);
